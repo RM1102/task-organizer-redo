@@ -1,18 +1,15 @@
 
+import type { UnifiedEvent } from '../../types';
+
 interface DayViewProps {
     currentDate: Date;
+    events: UnifiedEvent[];
 }
 
-const DayView = ({ }: DayViewProps) => {
+const DayView = ({ events }: DayViewProps) => {
     // Generate hours 0-23
     const hours = Array.from({ length: 24 }).map((_, i) => i);
 
-    // Example overlapping events for visualization
-    const events = [
-        { id: 1, title: 'Team Standup', startHour: 9, duration: 1, color: 'bg-solarized-blue' },
-        { id: 2, title: 'Deep Work Block', startHour: 10, duration: 2, color: 'bg-solarized-magenta' },
-        { id: 3, title: 'Lunch', startHour: 13, duration: 1, color: 'bg-solarized-green' }
-    ];
 
     return (
         <div className="flex-1 flex flex-col h-full overflow-hidden relative bg-solarized-base3">
@@ -30,21 +27,32 @@ const DayView = ({ }: DayViewProps) => {
                         {/* Hour Slot */}
                         <div className="flex-1 hover:bg-solarized-base2/30 transition-colors relative">
                             {/* Events that start in this hour */}
-                            {events.filter(e => Math.floor(e.startHour) === hour).map(event => (
-                                <div
-                                    key={event.id}
-                                    className={`absolute inset-x-1 top-0 z-10 rounded shadow-sm px-2 py-1 ${event.color} text-white opacity-80 hover:opacity-100 hover:z-20 transition-all cursor-pointer`}
-                                    style={{
-                                        height: `${event.duration * 100}%`,
-                                        top: `${(event.startHour % 1) * 100}%`
-                                    }}
-                                >
-                                    <div className="font-semibold text-xs">{event.title}</div>
-                                    <div className="text-[10px] opacity-90">
-                                        {event.startHour > 12 ? event.startHour - 12 : event.startHour}:00 - {event.startHour + event.duration > 12 ? event.startHour + event.duration - 12 : event.startHour + event.duration}:00
+                            {events.filter(e => {
+                                const start = new Date(e.startTime);
+                                return start.getHours() === hour;
+                            }).map(event => {
+                                const start = new Date(event.startTime);
+                                const end = event.endTime ? new Date(event.endTime) : new Date(start.getTime() + 60 * 60 * 1000); // Default 1 hour if no end
+                                const durationHours = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+                                const startMinute = start.getMinutes();
+
+                                return (
+                                    <div
+                                        key={event.id}
+                                        className={`absolute inset-x-1 z-10 rounded shadow-sm px-2 py-1 bg-solarized-blue text-white opacity-80 hover:opacity-100 hover:z-20 transition-all cursor-pointer`}
+                                        style={{
+                                            height: `${durationHours * 100}%`,
+                                            top: `${(startMinute / 60) * 100}%`
+                                        }}
+                                    >
+                                        <div className="font-semibold text-xs">{event.title}</div>
+                                        <div className="text-[10px] opacity-90">
+                                            {start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </div>
+                                        <div className="text-[9px] opacity-75 capitalize">{event.provider}</div>
                                     </div>
-                                </div>
-                            ))}
+                                )
+                            })}
                         </div>
                     </div>
                 ))}

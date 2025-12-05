@@ -1,10 +1,13 @@
 
 
+import type { UnifiedEvent } from '../../types';
+
 interface MonthGridProps {
     currentDate: Date;
+    events: UnifiedEvent[];
 }
 
-const MonthGrid = ({ currentDate }: MonthGridProps) => {
+const MonthGrid = ({ currentDate, events }: MonthGridProps) => {
     const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
     const startDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
 
@@ -30,12 +33,19 @@ const MonthGrid = ({ currentDate }: MonthGridProps) => {
                             }`}>
                             {i + 1}
                         </span>
-                        {/* Example event */}
-                        {i === 14 && (
-                            <div className="mt-1 text-xs truncate bg-solarized-green/20 text-solarized-green px-1.5 py-0.5 rounded border border-solarized-green/30">
-                                Project Review
-                            </div>
-                        )}
+                        {/* Events for this day */}
+                        {events
+                            .filter(e => {
+                                const d = new Date(e.startTime);
+                                return d.getDate() === i + 1 && d.getMonth() === currentDate.getMonth() && d.getFullYear() === currentDate.getFullYear();
+                            })
+                            .slice(0, 3) // Limit to 3
+                            .map(event => (
+                                <div key={event.id} className="mt-1 text-xs truncate bg-solarized-blue/20 text-solarized-blue px-1.5 py-0.5 rounded border border-solarized-blue/30">
+                                    {event.title}
+                                </div>
+                            ))
+                        }
                     </div>
                 ))}
             </div>

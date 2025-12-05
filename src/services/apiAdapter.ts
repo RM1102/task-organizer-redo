@@ -1,7 +1,9 @@
 import type { ServiceAdapter } from './adapter.interface';
 import type { UnifiedTask, UnifiedEvent } from '../types';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_URL = import.meta.env.PROD
+    ? 'https://task-organizer-redo.onrender.com'
+    : (import.meta.env.VITE_API_URL || 'http://localhost:3000');
 
 export class ApiAdapter implements ServiceAdapter {
     readonly provider = 'local';
@@ -32,6 +34,12 @@ export class ApiAdapter implements ServiceAdapter {
         });
         const res = await fetch(`${API_URL}/items?${query}`);
         if (!res.ok) throw new Error('Failed to fetch events');
+        return res.json();
+    }
+
+    async getUnifiedEvents(userId: string): Promise<any[]> {
+        const res = await fetch(`${API_URL}/calendar/events?userId=${userId}`);
+        if (!res.ok) throw new Error('Failed to fetch unified events');
         return res.json();
     }
 

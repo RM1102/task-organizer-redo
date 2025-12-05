@@ -9,5 +9,10 @@ A new Task Organizer application focused on a "Solarized Light" aesthetic.
 - TypeScript
 - TailwindCSS
 
+## Features
+- Unified Task List
+- Calendar Integration (Google, Microsoft, Apple)
+- Solarized Light Theme
+
 ## Current Phase
-Planning & Design
+Implementation - Calendar Integration Complete

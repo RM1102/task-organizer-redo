@@ -2,6 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
+// Polyfill fetch for node environment if needed (rare in Node 18+ but harmless)
+// simpler reference to ensure it's picked up if global is missing
+import 'node-fetch';
+
 @Injectable()
 export class SupabaseService {
     private readonly logger = new Logger(SupabaseService.name);
